@@ -1,0 +1,25 @@
+{% load i18n %}
+<div class="field has-addons is-justify-content-end">
+    <div class="control">
+        {% if type == 'direct' %}
+            <input type="hidden" name="privacy" value="direct">
+            <button type="button" class="button" aria-label="Privacy" disabled>{% trans "Private" %}</button>
+        {% else %}
+            {% if draft %}
+            {% include 'snippets/privacy_select.html' with current=draft.privacy %}
+            {% else %}
+            {% include 'snippets/privacy_select.html' with current=reply_parent.privacy %}
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="control">
+        <button class="button is-link" type="submit">
+            <span class="icon icon-spinner" aria-hidden="true"></span>
+            {% if draft %}
+            <span>{% trans "Update" %}</span>
+            {% else %}
+            <span>{% trans "Post" %}</span>
+            {% endif %}
+        </button>
+    </div>
+</div>

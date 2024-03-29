@@ -1,0 +1,6 @@
+{% extends 'groups/group.html' %}
+{% load i18n %}
+
+{% block searchresults %}
+    {% include 'groups/suggested_users.html' with suggested_users=suggested_users %}
+{% endblock %}

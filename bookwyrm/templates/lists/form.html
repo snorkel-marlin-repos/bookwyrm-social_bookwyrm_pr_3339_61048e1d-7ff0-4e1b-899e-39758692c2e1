@@ -1,0 +1,133 @@
+{% load i18n %}
+{% csrf_token %}
+{% load utilities %}
+<input type="hidden" name="user" value="{{ request.user.id }}">
+
+<div class="columns">
+    <div class="column is-two-thirds">
+        <div class="field">
+            <label class="label" for="id_name" id="tour-list-name">{% trans "Name:" %}</label>
+            {{ list_form.name }}
+        </div>
+        <div class="field">
+            <label class="label" for="id_description">{% trans "Description:" %}</label>
+            {{ list_form.description }}
+        </div>
+    </div>
+    <div class="column">
+        <fieldset class="field">
+            <legend class="label" id="tour-list-curation">{% trans "List curation:" %}</legend>
+
+            <div class="field" data-hides="list_group_selector">
+                <input
+                    type="radio"
+                    name="curation"
+                    value="closed"
+                    aria-described-by="id_curation_closed_help"
+                    id="id_curation_closed"
+                    {% if not curation_group.exists or not list or list.curation == 'closed' %}checked{% endif %}
+                >
+                <label for="id_curation_closed">
+                    {% trans "Closed" %}
+                </label>
+                <p class="help mb-2" id="id_curation_closed_help">
+                    {% trans "Only you can add and remove books to this list" %}
+                </p>
+            </div>
+
+            <div class="field" data-hides="list_group_selector">
+                <input
+                    type="radio"
+                    name="curation"
+                    value="curated"
+                    aria-described-by="id_curation_curated_help"
+                    id="id_curation_curated"
+                    {% if list.curation == 'curated' %} checked{% endif %}
+                >
+                <label for="id_curation_curated">
+                    {% trans "Curated" %}
+                </label>
+                <p class="help mb-2" id="id_curation_curated_help">
+                    {% trans "Anyone can suggest books, subject to your approval" %}
+                </p>
+            </div>
+
+            <div class="field" data-hides="list_group_selector">
+                <input
+                    type="radio"
+                    name="curation"
+                    value="open"
+                    aria-described-by="id_curation_open_help"
+                    id="id_curation_open"
+                    {% if list.curation == 'open' %} checked{% endif %}
+                >
+                <label for="id_curation_open">
+                    {% trans "Open" context "curation type" %}
+                </label>
+                <p class="help mb-2" id="id_curation_open_help">
+                    {% trans "Anyone can add books to this list" %}
+                </p>
+            </div>
+
+            <div class="field hidden-form">
+                <input
+                    type="radio"
+                    name="curation"
+                    value="group"
+                    aria-described-by="id_curation_group_help"
+                    id="id_curation_group"
+                    {% if curation_group.id or list.curation == 'group' %}checked{% endif %}
+                >
+                <label for="id_curation_group">
+                    {% trans "Group" %}
+                </label>
+                <p class="help mb-2" id="id_curation_group_help">
+                    {% trans "Group members can add to and remove from this list" %}
+                </p>
+
+                <fieldset class="{% if list.curation != 'group' and not curation_group %}is-hidden{% endif %}" id="list_group_selector">
+                {% if user.memberships.exists %}
+                    <label class="label" for="id_group" id="group">{% trans "Select Group" %}</label>
+                    <div class="field has-addons">
+                        <div class="select control">
+                            <select name="group" id="id_group">
+                                <option value="" disabled {% if not list.group and not curation_group %} selected{% endif %}>{% trans "Select a group" %}</option>
+                                {% for membership in user.memberships.all %}
+                                <option value="{{ membership.group.id }}" {% if list.group.id == membership.group.id or curation_group.id == membership.group.id %} selected{% endif %}>{{ membership.group.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                {% else %}
+                    {% with user|username as username %}
+                    {% url 'user-groups' user|username as url %}
+                    <div>
+                        <p id="tour-no-groups-yet">{% trans "You don't have any Groups yet!" %}</p>
+                        <p>
+                            <a class="help has-text-weight-normal" href="{{ url }}">{% trans "Create a Group" %}</a>
+                        </p>
+                    </div>
+                    {% endwith %}
+                {% endif %}
+                </fieldset>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div class="is-flex is-justify-content-end">
+    {% if list.id %}
+    <div class="is-flex-grow-1">
+        <button type="button" data-modal-open="delete_list" class="button is-danger">
+            {% trans "Delete list" %}
+        </button>
+    </div>
+    {% endif %}
+    <div class="field has-addons">
+        <div class="control" id="tour-privacy-select">
+            {% include 'snippets/privacy_select.html' with current=list.privacy %}
+        </div>
+        <div class="control">
+            <button type="submit" class="button is-primary">{% trans "Save" %}</button>
+        </div>
+    </div>
+</div>

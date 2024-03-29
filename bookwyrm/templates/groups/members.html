@@ -1,0 +1,60 @@
+{% load i18n %}
+{% load utilities %}
+{% load humanize %}
+{% load group_tags %}
+
+<h2 class="title is-5">Group Members</h2>
+{% if group.user == request.user %}
+<div class="block">
+    <form class="field has-addons" method="get" action="{% url 'group-find-users' group.id %}">
+        <div class="control">
+            <input type="text" name="user_query" value="{{ request.GET.user_query }}" class="input" placeholder="{% trans 'Search to add a user' %}" aria-label="{% trans 'Search to add a user' %}" spellcheck="false">
+        </div>
+        <div class="control" id="tour-group-member-search">
+            <button class="button" type="submit">
+                <span class="icon icon-search" title="{% trans 'Search' %}">
+                    <span class="is-sr-only">{% trans "Search" %}</span>
+                </span>
+            </button>
+        </div>
+    </form>
+</div>
+{% endif %}
+{% if group.user != request.user and group|is_member:request.user %}
+<form action="{% url 'remove-group-member' %}" method="POST" class="my-4">
+    {% csrf_token %}
+    <input type="hidden" name="group" value="{{ group.id }}">
+    <input type="hidden" name="user" value="{{ user.username }}">
+    <button id="remove_self_button" class="button is-small is-danger is-light is-hidden" type="submit">
+        {% trans "Confirm" %}
+    </button>
+    <button id="hide_remove_self_button" data-controls="remove_self_button" class="button is-small" type="button" aria-pressed="false">
+        {% trans "Leave group" %}
+    </button>
+</form>
+{% endif %}
+
+<div class="is-multiline is-flex is-flex-grow-0 is-flex-wrap-wrap">
+    {% for membership in group.memberships.all %}
+    {% with member=membership.user %}
+    <div class="box has-text-centered is-shadowless has-background-tertiary my-2 mx-2 member_{{ member.id }}">
+        <a href="{{ member.local_path }}" class="has-text-default">
+            {% include 'snippets/avatar.html' with user=member large=True %}
+            <span title="{{ member.display_name }}" class="is-block is-6 has-text-weight-bold">{{ member.display_name|truncatechars:10 }}</span>
+            <span title="@{{ member|username }}" class="is-block pb-3">@{{ member|username|truncatechars:8 }}</span>
+        </a>
+        {% if group.user == member %}
+        <span class="icon icon-star-full" title="Manager" id="tour-group-owner">
+            <span class="is-sr-only">Manager</span>
+        </span>
+        {% endif %}
+        {% include 'snippets/remove_from_group_button.html' with user=member group=group %}
+        {% if request.user in member.following.all %}
+        <p class="help">
+            {% trans "Follows you" %}
+        </p>
+        {% endif %}
+    </div>
+    {% endwith %}
+    {% endfor %}
+</div>

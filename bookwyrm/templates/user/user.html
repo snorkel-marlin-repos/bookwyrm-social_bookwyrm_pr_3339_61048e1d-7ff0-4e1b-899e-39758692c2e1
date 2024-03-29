@@ -1,0 +1,148 @@
+{% extends 'user/layout.html' %}
+{% load i18n %}
+{% load utilities %}
+
+{% block title %}{{ user.display_name }}{% endblock %}
+
+{% block head_links %}
+    <link rel="alternate" type="application/rss+xml" href="{{ user.local_path }}/rss" title="{{ user.display_name }} - {{ site.name }}" />
+{% endblock %}
+
+{% block header %}
+<div class="columns is-mobile">
+    <div class="column">
+        <h1 class="title">{% trans "User Profile" %}</h1>
+    </div>
+    {% if is_self %}
+    <div class="column is-narrow">
+        <a href="{% url 'prefs-profile' %}">
+            <span class="icon icon-pencil" title="Edit profile" aria-hidden="true"></span>
+            <span class="is-hidden-mobile">{% trans "Edit profile" %}</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block panel %}
+{% if user.bookwyrm_user %}
+<div class="block">
+    <h2 class="title">
+        {% include 'user/books_header.html' %}
+    </h2>
+    <div class="columns is-mobile scroll-x">
+        {% for shelf in shelves %}
+        <div class="column is-narrow">
+            <h3>
+                {% if shelf.name == 'To Read' %}{% trans "To Read" %}
+                {% elif shelf.name == 'Currently Reading' %}{% trans "Currently Reading" %}
+                {% elif shelf.name == 'Read' %}{% trans "Read" %}
+                {% elif shelf.name == 'Stopped Reading' %}{% trans "Stopped Reading" %}
+                {% else %}{{ shelf.name }}{% endif %}
+                {% if shelf.size > 4 %}<small>(<a href="{{ shelf.local_path }}">{% blocktrans with size=shelf.size %}View all {{ size }}{% endblocktrans %}</a>)</small>{% endif %}
+            </h3>
+            <div class="is-mobile field is-grouped">
+            {% for book in shelf.books %}
+            <div class="control">
+                <a href="{{ book.local_path }}">
+                {% include 'snippets/book_cover.html' with book=book cover_class='is-h-m is-h-s-mobile' size_mobile='small' size='medium' %}
+                </a>
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <p class="column">
+            <em>No books found.</em>
+        </p>
+        {% endfor %}
+    </div>
+    {% if shelves.exists %}
+    <small><a href="{% url 'user-shelves' user|username %}">{% trans "View all books" %}</a></small>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if goal %}
+<div class="block">
+    {% now 'Y' as current_year%}
+    <h2 class="title">{% blocktrans %}{{ current_year }} Reading Goal{% endblocktrans %}</h2>
+    {% include 'snippets/goal_progress.html' with goal=goal %}
+</div>
+{% endif %}
+
+<div>
+    <div class="columns is-mobile">
+        <h2 class="title column">{% trans "User Activity" %}</h2>
+        {% if user.local %}
+        <div class="column is-narrow">
+            <details class="dropdown">
+                <summary
+                    class="is-relative pulldown-menu dropdown-trigger"
+                    aria-label="{% trans 'Show RSS Options' %}"
+                    role="button"
+                    aria-haspopup="menu"
+                >
+                    <span class="">
+                        <span class="icon icon-rss" aria-hidden="true"></span>
+                        <span class="">{% trans "RSS feed" %}</span>
+                    </span>
+                    <span class="icon icon-arrow-down is-hidden-mobile" aria-hidden="true"></span>
+                    <span class="summary-on-open">
+                        <span class="icon icon-arrow-left is-small" aria-hidden="true"></span>
+                        {% trans "Back" %}
+                    </span>
+                </summary>
+
+                <div class="dropdown-menu">
+                    <ul
+                        class="dropdown-content"
+                        role="menu"
+                    >
+                        <li role="menuitem">
+                            <a target="_blank" href="{{ user.local_path }}/rss" class="navbar-item" rel="nofollow noopener noreferrer">
+                                {% trans "Complete feed" %}
+                            </a>
+                        </li>
+                        <li role="menuitem">
+                            <a target="_blank" href="{{ user.local_path }}/rss-reviews" class="navbar-item" rel="nofollow noopener noreferrer">
+                                {% trans "Reviews only" %}
+                            </a>
+                        </li>
+                        <li role="menuitem">
+                            <a target="_blank" href="{{ user.local_path }}/rss-quotes" class="navbar-item" rel="nofollow noopener noreferrer">
+                                {% trans "Quotes only" %}
+                            </a>
+                        </li>
+                        <li role="menuitem">
+                            <a target="_blank" href="{{ user.local_path }}/rss-comments" class="navbar-item" rel="nofollow noopener noreferrer">
+                                {% trans "Comments only" %}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+        {% endif %}
+    </div>
+
+    {% for activity in activities %}
+    <div class="block" id="feed_{{ activity.id }}">
+        {% include 'snippets/status/status.html' with status=activity %}
+    </div>
+    {% empty %}
+    <div class="block">
+        <p><em>{% trans "No activities yet!" %}</em></p>
+    </div>
+    {% endfor %}
+
+    {% include 'snippets/pagination.html' with page=activities path=user.local_path anchor="#feed" mode="chronological" %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{% if request.user.show_guided_tour %}
+    {% include 'guided_tour/user_profile.html' %}
+{% endif %}
+{% endblock %}

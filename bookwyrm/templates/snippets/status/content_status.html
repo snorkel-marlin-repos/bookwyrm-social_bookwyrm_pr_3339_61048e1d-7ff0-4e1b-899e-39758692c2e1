@@ -1,0 +1,147 @@
+{% load book_display_tags %}
+{% load rating_tags %}
+{% load markdown %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+
+{% with status_type=status.status_type %}
+    <div class="columns is-gapless">
+        {% if not hide_book %}
+            {% with book=status.book|default:status.mention_books.first %}
+                {% if book %}
+                    <div class="column is-cover">
+                        <div class="columns is-mobile is-gapless">
+                            <div class="column is-cover">
+                                <a href="{{ book.local_path }}">{% include 'snippets/book_cover.html' with book=book cover_class='is-w-s-mobile is-h-l-tablet' size_mobile='medium' size='large' %}</a>
+
+                                {% include 'snippets/stars.html' with rating=book|rating:request.user %}
+
+                                {% include 'snippets/shelve_button/shelve_button.html' with book=book %}
+                            </div>
+
+                            <div class="column ml-3-mobile is-hidden-tablet">
+                                <p>{{ book|book_description|to_markdown|default:""|safe|truncatewords_html:15 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
+        {% endif %}
+
+        <article class="column ml-3-tablet my-3-mobile is-clipped">
+            {% if status_type == 'Review' %}
+            <header class="mb-2">
+                <h3
+                    class="title is-5 has-subtitle"
+                    dir="auto"
+                    itemprop="name"
+                >
+                    {{ status.name|escape }}
+                </h3>
+
+                <h4 class="subtitle is-6">
+                    <span
+                        class="is-hidden"
+                        {% if status_type == "Review" %}
+                            itemprop="reviewRating"
+                            itemscope
+                            itemtype="https://schema.org/Rating"
+                        {% endif %}
+                    >
+                        <meta itemprop="ratingValue" content="{{ status.rating|floatformat }}">
+                    </span>
+                    {% include 'snippets/stars.html' with rating=status.rating %}
+                </h4>
+            </header>
+            {% endif %}
+
+            {% if status.content_warning %}
+                <div class="notification p-2 is-clearfix is-warning is-light">
+                    <p class="is-pulled-left is-flex">
+                        {% trans "Content warning" as text %}
+                        <span class="icon icon-warning" title="{{ text }}">
+                            <span class="is-sr-only">{{ text }}</span>
+                        </span>
+                        {{ status.content_warning }}
+                    </p>
+
+                    {% trans "Show status" as button_text %}
+
+                    {% with text=button_text class="is-small is-pulled-right" icon_with_text="arrow-down" controls_text="show_status_cw" controls_uid=status.id %}
+                        {% include 'snippets/toggle/open_button.html' %}
+                    {% endwith %}
+                </div>
+            {% endif %}
+
+            <div
+                {% if status.content_warning %}
+                    id="show_status_cw_{{ status.id }}"
+                    class="is-hidden"
+                {% endif %}
+            >
+                {% if status.quote %}
+                    <div class="quote block">
+                        <blockquote dir="auto" class="content mb-2 preserve-whitespace">{{ status.quote|safe }}</blockquote>
+
+                        <p>
+                            &mdash; {% include 'snippets/book_titleby.html' with book=status.book %}
+                            {% if status.position %}
+                                {% if status.position_mode == 'PG' %}
+                                    {% blocktrans with page=status.position|intcomma %}(Page {{ page }}{% endblocktrans%}{% if status.endposition and status.endposition != status.position %} - {% blocktrans with endpage=status.endposition|intcomma %}{{ endpage }}{% endblocktrans %}{% endif%})
+                                {% else %}
+                                    {% blocktrans with percent=status.position %}({{ percent }}%{% endblocktrans %}{% if status.endposition and status.endposition != status.position %}{% blocktrans with endpercent=status.endposition|intcomma %} - {{ endpercent }}%{% endblocktrans %}{% endif %})
+                                {% endif %}
+                            {% endif %}
+                        </p>
+                    </div>
+                {% endif %}
+
+                {% if status.content and status_type != 'GeneratedNote' and status_type != 'Announce' %}
+                    {% with full=status.content|safe no_trim=status.content_warning|default:expand itemprop="reviewBody" %}
+                        {% include 'snippets/trimmed_text.html' %}
+                    {% endwith %}
+                {% endif %}
+
+                {% if status.attachments.exists %}
+                    <div class="block">
+                        <div class="columns">
+                            {% for attachment in status.attachments.all %}
+                                <div class="column is-narrow">
+                                    <figure class="image is-128x128">
+                                        <a
+                                            href="{% get_media_prefix %}{{ attachment.image }}"
+                                            target="_blank"
+                                            rel="nofollow noopener noreferrer"
+                                            aria-label="{% trans 'Open image in new window' %}"
+                                        >
+                                            <img
+                                                src="{% get_media_prefix %}{{ attachment.image }}"
+
+                                                {% if attachment.caption %}
+                                                    alt="{{ attachment.caption }}"
+                                                    title="{{ attachment.caption }}"
+                                                {% endif %}
+                                                loading="lazy"
+                                                decoding="async"
+                                            >
+                                        </a>
+                                    </figure>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if status.content_warning %}
+                    {% trans "Hide status" as button_text %}
+
+                    {% with text=button_text class="is-small" controls_text="show_status_cw" controls_uid=status.id icon_with_text="arrow-up" %}
+                        {% include 'snippets/toggle/close_button.html' %}
+                    {% endwith %}
+                {% endif %}
+            </div>
+        </article>
+    </div>
+
+{% endwith %}

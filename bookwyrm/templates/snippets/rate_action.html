@@ -1,0 +1,25 @@
+{% load i18n %}
+{% load rating_tags %}
+
+{% if request.user.is_authenticated %}
+<span class="is-sr-only">{% trans "Leave a rating" %}</span>
+<div class="block">
+    <form class="hidden-form" name="rate" action="{% url 'create-status' 'rating' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ request.user.id }}">
+        <input type="hidden" name="book" value="{{ book.id }}">
+        <input type="hidden" name="privacy" value="public">
+
+        {% include 'snippets/form_rate_stars.html' with book=book classes='mb-1 has-text-warning-dark' default_rating=book|user_rating:request.user %}
+
+        <div class="field has-addons is-hidden">
+            <div class="control">
+                {% include 'snippets/privacy_select.html' with class="is-small" %}
+            </div>
+            <div class="control">
+                <button class="button is-small is-primary" type="submit">{% trans "Rate" %}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endif %}

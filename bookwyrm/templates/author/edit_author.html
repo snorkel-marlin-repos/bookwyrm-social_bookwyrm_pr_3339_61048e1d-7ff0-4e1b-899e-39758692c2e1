@@ -1,0 +1,133 @@
+{% extends 'layout.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}{% trans "Edit Author:" %} {{ author.name }}{% endblock %}
+
+{% block content %}
+<header class="block">
+    <h1 class="title">
+        Edit "{{ author.name }}"
+    </h1>
+    <div>
+        <p>{% trans "Added:" %} {{ author.created_date | naturaltime }}</p>
+        <p>{% trans "Updated:" %} {{ author.updated_date | naturaltime }}</p>
+        {% if author.last_edited_by %}
+        <p>{% trans "Last edited by:" %} <a href="{{ author.last_edited_by.remote_id }}">{{ author.last_edited_by.display_name }}</a></p>
+        {% endif %}
+    </div>
+</header>
+
+{% if form.non_field_errors %}
+<div class="block">
+    <p class="notification is-danger">{{ form.non_field_errors }}</p>
+</div>
+{% endif %}
+
+<form class="block" name="edit-author" action="{% url 'edit-author' author.id %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="last_edited_by" value="{{ request.user.id }}">
+
+    <div class="columns">
+        <div class="column">
+            <h2 class="title is-4">{% trans "Metadata" %}</h2>
+            <div class="field">
+                <label class="label" for="id_name">{% trans "Name:" %}</label>
+                {{ form.name }}
+
+                {% include 'snippets/form_errors.html' with errors_list=form.name.errors id="desc_name" %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="id_aliases">{% trans "Aliases:" %}</label>
+                {{ form.aliases }}
+                <span class="help">{% trans "Separate multiple values with commas." %}</span>
+
+                {% include 'snippets/form_errors.html' with errors_list=form.aliases.errors id="desc_aliases" %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="id_bio">{% trans "Bio:" %}</label>
+                {{ form.bio }}
+
+                {% include 'snippets/form_errors.html' with errors_list=form.bio.errors id="desc_bio" %}
+            </div>
+
+            <p class="field"><label class="label" for="id_wikipedia_link">{% trans "Wikipedia link:" %}</label> {{ form.wikipedia_link }}</p>
+
+            <p class="field"><label class="label" for="id_wikidata">{% trans "Wikidata:" %}</label> {{ form.wikidata }}</p>
+
+            {% include 'snippets/form_errors.html' with errors_list=form.wikipedia_link.errors id="desc_wikipedia_link" %}
+
+            <p class="field"><label class="label" for="id_website">{% trans "Website:" %}</label> {{ form.website }}</p>
+
+            {% include 'snippets/form_errors.html' with errors_list=form.website.errors id="desc_website" %}
+
+            <div class="field">
+                <label class="label" for="id_born">{% trans "Birth date:" %}</label>
+                <input type="date" name="born" value="{{ form.born.value|date:'Y-m-d' }}" class="input" id="id_born">
+
+                {% include 'snippets/form_errors.html' with errors_list=form.born.errors id="desc_born" %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="id_died">{% trans "Death date:" %}</label>
+                <input type="date" name="died" value="{{ form.died.value|date:'Y-m-d' }}" class="input" id="id_died">
+
+                {% include 'snippets/form_errors.html' with errors_list=form.died.errors id="desc_died" %}
+            </div>
+        </div>
+        <div class="column">
+            <h2 class="title is-4">{% trans "Author Identifiers" %}</h2>
+            <div class="field">
+                <label class="label" for="id_openlibrary_key">{% trans "Openlibrary key:" %}</label>
+                {{ form.openlibrary_key }}
+
+                {% include 'snippets/form_errors.html' with errors_list=form.openlibrary_key.errors id="desc_openlibrary_key" %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="id_inventaire_id">{% trans "Inventaire ID:" %}</label>
+                {{ form.inventaire_id }}
+
+                {% include 'snippets/form_errors.html' with errors_list=form.inventaire_id.errors id="desc_inventaire_id" %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="id_librarything_key">{% trans "Librarything key:" %}</label>
+                {{ form.librarything_key }}
+
+                {% include 'snippets/form_errors.html' with errors_list=form.librarything_key.errors id="desc_librarything_key" %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="id_goodreads_key">{% trans "Goodreads key:" %}</label>
+                {{ form.goodreads_key }}
+
+                {% include 'snippets/form_errors.html' with errors_list=form.goodreads_key.errors id="desc_goodreads_key" %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="id_isfdb">{% trans "ISFDB:" %}</label>
+                {{ form.isfdb }}
+
+                {% include 'snippets/form_errors.html' with errors_list=form.isfdb.errors id="desc_isfdb" %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="id_isni">{% trans "ISNI:" %}</label>
+                {{ form.isni }}
+
+                {% include 'snippets/form_errors.html' with errors_list=form.isni.errors id="desc_isni" %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="block">
+        <button class="button is-primary" type="submit">{% trans "Save" %}</button>
+        <a class="button" href="{{ author.local_path }}">{% trans "Cancel" %}</a>
+    </div>
+</form>
+
+{% endblock %}

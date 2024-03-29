@@ -1,0 +1,48 @@
+{% load i18n %}
+<details class="details-panel box is-size-{{ size|default:'normal' }}" {% if filters_applied %}open{% endif %}>
+    <summary class="is-flex is-align-items-center is-flex-wrap-wrap is-gap-2">
+        <span class="mb-0 title {% if size == 'small' %}is-6{% else %}is-5{% endif %} is-flex-shrink-0">
+            {% trans "Filters" %}
+        </span>
+
+        {% if filters_applied %}
+        <span class="tag is-success is-light ml-2 mb-0 is-{{ size|default:'normal' }}">
+            {% trans "Filters are applied" %}
+        </span>
+        {% endif %}
+
+        {% if method != "post" and request.GET %}
+        <span class="mb-0 tags has-addons">
+            <span class="mb-0 tag is-success is-light is-{{ size|default:'normal' }}">
+                {% trans "Filters are applied" %}
+            </span>
+            <a class="mb-0 tag is-success is-{{ size|default:'normal' }}" href="{{ request.path }}">
+                {% trans "Clear filters" %}
+            </a>
+        </span>
+        {% endif %}
+
+        <span class="details-close icon icon-x is-{{ size|default:'normal' }}" aria-hidden="true"></span>
+    </summary>
+
+    <div>
+        <form id="filters" method="{{ method|default:'get' }}" action="{{ action|default:request.path }}">
+            {% if method == 'post' %}
+                {% csrf_token %}
+            {% endif %}
+
+            {% if sort %}
+            <input type="hidden" name="sort" value="{{ sort }}">
+            {% endif %}
+            <div class="columns filters-fields is-align-items-stretch">
+                {% block filter_fields %}
+                {% endblock %}
+            </div>
+            <div class="control">
+            <button type="submit" class="button is-primary">
+            {% trans "Apply filters" %}
+            </button>
+            </div>
+        </form>
+    </div>
+</details>

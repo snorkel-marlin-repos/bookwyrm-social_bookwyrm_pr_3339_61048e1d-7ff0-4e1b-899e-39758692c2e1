@@ -1,0 +1,30 @@
+{% spaceless %}
+{% load utilities %}
+
+{% with 0|uuid as uuid %}
+<details
+    id="menu_{{ uuid }}"
+    class="
+        dropdown control
+        {% if right %}is-right{% endif %}
+        has-text-left
+    "
+>
+    <summary
+        class="button control dropdown-trigger pulldown-menu {{ class }}"
+    >
+        {% block dropdown-trigger %}{% endblock %}
+    </summary>
+
+    <div class="dropdown-menu">
+        <ul
+            id="menu_options_{{ uuid }}"
+            class="dropdown-content p-0 is-clipped"
+            role="menu"
+        >
+            {% block dropdown-list %}{% endblock %}
+        </ul>
+    </div>
+</details>
+{% endwith %}
+{% endspaceless %}

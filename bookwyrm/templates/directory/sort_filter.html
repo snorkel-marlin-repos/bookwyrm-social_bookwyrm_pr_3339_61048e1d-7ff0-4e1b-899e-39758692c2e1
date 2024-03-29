@@ -1,0 +1,14 @@
+{% extends 'snippets/filters_panel/filter_field.html' %}
+{% load i18n %}
+
+{% block filter %}
+<label class="label" for="id_sort">{% trans "Order by" %}</label>
+<div class="control">
+    <div class="select">
+        <select name="sort" id="id_sort">
+            <option value="recent" {% if sort == "recent" %}selected{% endif %}>{% trans "Recently active" %}</option>
+            <option value="suggested" {% if sort == "suggested" %}selected{% endif %}>{% trans "Suggested" %}</option>
+        </select>
+    </div>
+</div>
+{% endblock %}

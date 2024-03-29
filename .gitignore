@@ -1,0 +1,39 @@
+# Python
+/venv
+*.pyc
+*.swp
+**/__pycache__
+.local
+/nginx/nginx.conf
+
+# VSCode
+/.vscode
+
+# sqlite
+*.db
+*.db-journal
+
+# BookWyrm
+.env
+/images/
+/static/
+bookwyrm/static/css/bookwyrm.css
+bookwyrm/static/css/themes/
+!bookwyrm/static/css/themes/bookwyrm-*.scss
+
+# Testing
+.coverage
+
+#PyCharm
+.idea
+
+#Node tools
+node_modules/
+package-lock.json
+yarn.lock
+
+#nginx
+nginx/default.conf
+
+#macOS
+**/.DS_Store

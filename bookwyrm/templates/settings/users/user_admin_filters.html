@@ -1,0 +1,12 @@
+{% extends 'snippets/filters_panel/filters_panel.html' %}
+
+{% block filter_fields %}
+{% include 'settings/users/username_filter.html' %}
+
+{% if status != "local" %}
+{% include 'settings/users/server_filter.html' %}
+{% else %}
+{% include 'settings/users/email_filter.html' %}
+{% endif %}
+
+{% endblock %}

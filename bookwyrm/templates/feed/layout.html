@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Updates" %}{% endblock %}
+
+{% block content %}
+<div class="columns">
+    {% if user.is_authenticated %}
+    <div class="column is-one-third">
+        {% include "feed/suggested_books.html" %}
+        {% if goal %}
+        <section class="block">
+            <div class="block">
+                <h3 class="title is-4">{% blocktrans with yar=goal.year %}{{ year }} Reading Goal{% endblocktrans %}</h3>
+                {% include 'snippets/goal_progress.html' with goal=goal %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="column is-two-thirds" id="feed">
+        {% block panel %}{% endblock %}
+
+        {% if activities %}
+        {% include 'snippets/pagination.html' with page=activities path=path anchor="#feed" mode="chronological" %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+

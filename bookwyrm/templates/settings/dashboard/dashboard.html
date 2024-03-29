@@ -1,0 +1,147 @@
+{% extends 'settings/layout.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}{% trans "Dashboard" %}{% endblock %}
+
+{% block header %}{% trans "Dashboard" %}{% endblock %}
+
+{% block panel %}
+
+<div class="columns block has-text-centered is-mobile is-multiline">
+    <div class="column is-3-desktop is-6-mobile is-flex">
+        <div class="notification is-flex-grow-1">
+            <h3>{% trans "Total users" %}</h3>
+            <p class="title is-5">{{ users|intcomma }}</p>
+        </div>
+    </div>
+    <div class="column is-3-desktop is-6-mobile is-flex">
+        <div class="notification is-flex-grow-1">
+            <h3>{% trans "Active this month" %}</h3>
+            <p class="title is-5">{{ active_users|intcomma }}</p>
+        </div>
+    </div>
+    <div class="column is-3-desktop is-6-mobile is-flex">
+        <div class="notification is-flex-grow-1">
+            <h3>{% trans "Statuses" %}</h3>
+            <p class="title is-5">{{ statuses|intcomma }}</p>
+        </div>
+    </div>
+    <div class="column is-3-desktop is-6-mobile is-flex">
+        <div class="notification is-flex-grow-1">
+            <h3>{% trans "Works" %}</h3>
+            <p class="title is-5">{{ works|intcomma }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="columns block is-multiline">
+    {% if email_config_error %}
+    {% include 'settings/dashboard/warnings/email_config.html' with warning_level="danger" fullwidth=True %}
+    {% endif %}
+
+    {% if current_version %}
+    {% include 'settings/dashboard/warnings/update_version.html' with warning_level="warning" fullwidth=True %}
+    {% endif %}
+
+    {% if schedule_form %}
+    {% include 'settings/dashboard/warnings/check_for_updates.html' with warning_level="success" fullwidth=True %}
+    {% endif %}
+
+    {% if missing_privacy or missing_conduct %}
+    <div class="column is-12 columns m-0 p-0">
+        {% if missing_privacy %}
+        {% include 'settings/dashboard/warnings/missing_privacy.html' with warning_level="danger" %}
+        {% endif %}
+
+        {% if missing_conduct %}
+        {% include 'settings/dashboard/warnings/missing_conduct.html' with warning_level="warning" %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if reports %}
+    {% include 'settings/dashboard/warnings/reports.html' with warning_level="warning" %}
+    {% endif %}
+
+    {% if pending_domains %}
+    {% include 'settings/dashboard/warnings/domain_review.html' with warning_level="primary" %}
+    {% endif %}
+
+    {% if not site.allow_registration and site.allow_invite_requests and invite_requests %}
+    {% include 'settings/dashboard/warnings/invites.html' with warning_level="success" %}
+    {% endif %}
+</div>
+
+<div class="block content">
+    <h2>{% trans "Instance Activity" %}</h2>
+
+    <form method="get" action="{% url 'settings-dashboard' %}" class="notification has-background-tertiary scroll-x">
+        <div class="is-flex is-align-items-flex-end">
+            <div class="ml-1 mr-1">
+                <label class="label" for="id_start">
+                    {% trans "Start date:" %}
+                </label>
+                <input class="input" type="date" name="start" value="{{ start }}" id="id_start">
+            </div>
+            <div class="ml-1 mr-1">
+                <label class="label" for="id_end">
+                    {% trans "End date:" %}
+                </label>
+                <input class="input" type="date" name="end" value="{{ end }}" id="id_end">
+            </div>
+            <div class="ml-1 mr-1">
+                <label class="label" for="id_interval">
+                    {% trans "Interval:" %}
+                </label>
+                <div class="select">
+                    <select name="days" id="id_interval">
+                        <option value="1" {% if interval == 1 %}selected{% endif %}>{% trans "Days" %}</option>
+                        <option value="7" {% if interval == 7 %}selected{% endif %}>{% trans "Weeks" %}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="ml-1 mr-1">
+                <button class="button is-link" type="submit">{% trans "Submit" %}</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="columns is-multiline">
+        <div class="column is-half">
+            <h3>{% trans "Total users" %}</h3>
+            <div class="box">
+                <canvas id="user_stats"></canvas>
+            </div>
+        </div>
+        <div class="column is-half">
+            <h3>{% trans "User signup activity" %}</h3>
+            <div class="box">
+                <canvas id="register_stats"></canvas>
+            </div>
+        </div>
+        <div class="column is-half">
+            <h3>{% trans "Status activity" %}</h3>
+            <div class="box">
+                <canvas id="status_stats"></canvas>
+            </div>
+        </div>
+        <div class="column is-half">
+            <h3>{% trans "Works created" %}</h3>
+            <div class="box">
+                <canvas id="works_stats"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+{% include 'settings/dashboard/user_chart.html' %}
+{% include 'settings/dashboard/status_chart.html' %}
+{% include 'settings/dashboard/registration_chart.html' %}
+{% include 'settings/dashboard/works_chart.html' %}
+{% endblock %}

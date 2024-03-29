@@ -1,0 +1,75 @@
+{% extends 'settings/layout.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}{% trans "Announcement" %} - {{ announcement.preview }}{% endblock %}
+
+{% block header %}
+{% trans "Announcement" %}
+{% endblock %}
+
+{% block edit-button %}
+<div class="field has-addons">
+    <div class="control">
+        <a class="button" href="{% url 'settings-announcements-edit' announcement.id %}">
+            <span class="icon icon-pencil m-0-mobile" aria-hidden="true"></span>
+            <span class="is-sr-only-mobile">{% trans "Edit" %}</span>
+        </a>
+    </div>
+    <form class="control" action="{% url 'settings-announcements-delete' announcement.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="button is-danger">
+            <span class="icon icon-x m-0-mobile" aria-hidden="true"></span>
+            <span class="is-sr-only-mobile">{% trans "Delete" %}</span>
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb subtitle" aria-label="breadcrumbs">
+    <ul>
+        <li><a href="{% url 'settings-announcements' %}">{% trans "Announcements" %}</a></li>
+        <li class="is-active">
+            <a href="#" aria-current="page">
+                {{ announcement.preview|truncatechars:30 }}
+            </a>
+        </li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block panel %}
+<div class="block content">
+    <dl>
+        <dt class="is-pulled-left mr-5 has-text-weight-bold">{% trans "Visible:" %}</dt>
+        <dd>
+            <span class="tag {% if announcement in active_announcements %}is-success{% else %}is-danger{% endif %}">
+            {% if announcement in active_announcements %}
+            {% trans "True" %}
+            {% else %}
+            {% trans "False" %}
+            {% endif %}
+            </span>
+        </dd>
+
+        {% if announcement.start_date %}
+        <dt class="is-pulled-left mr-5 has-text-weight-bold">{% trans "Start date:" %}</dt>
+        <dd>{{ announcement.start_date|naturalday }}</dd>
+        {% endif %}
+
+        {% if announcement.end_date %}
+        <dt class="is-pulled-left mr-5 has-text-weight-bold">{% trans "End date:" %}</dt>
+        <dd>{{ announcement.end_date|naturalday }}</dd>
+        {% endif %}
+
+        <dt class="is-pulled-left mr-5 has-text-weight-bold">{% trans "Active:" %}</dt>
+        <dd>{{ announcement.active }}</dd>
+    </dl>
+
+    <hr aria-hidden="true">
+
+    {% include 'snippets/announcement.html' with announcement=announcement pressed=True admin_mode=True %}
+</div>
+
+{% endblock %}

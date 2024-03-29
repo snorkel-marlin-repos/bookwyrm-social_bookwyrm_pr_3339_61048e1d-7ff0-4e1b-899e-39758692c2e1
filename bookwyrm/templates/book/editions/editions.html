@@ -1,0 +1,82 @@
+{% extends 'layout.html' %}
+{% load i18n %}{% load utilities %}
+
+{% block title %}{% blocktrans with book_title=work|book_title %}Editions of {{ book_title }}{% endblocktrans %}{% endblock %}
+
+{% block content %}
+<div class="block">
+    <h1 class="title">{% blocktrans with work_path=work.local_path work_title=work|book_title %}Editions of <a href="{{ work_path }}"><i>{{ work_title }}</i></a>{% endblocktrans %}</h1>
+</div>
+
+{% include 'book/editions/edition_filters.html' %}
+
+<div class="block">
+    {% for book in editions %}
+    <div class="columns is-gapless mb-6">
+        <div class="column is-cover">
+            <a href="{{ book.local_path }}">
+                {% include 'snippets/book_cover.html' with size='medium' book=book cover_class='is-w-m is-h-m align to-l-mobile' %}
+            </a>
+        </div>
+
+        <div class="column my-3-mobile ml-3-tablet mr-auto">
+            <h2 class="title is-5 mb-1">
+                <a href="{{ book.local_path }}" class="has-text-default">
+                    {{ book|book_title }}
+                </a>
+            </h2>
+
+            {% with book=book %}
+                <div class="columns is-multiline is-gapless ml-3-tablet">
+                    <div class="column is-half">
+                        {% include 'book/publisher_info.html' %}
+                    </div>
+
+                    <div class="column ml-3-tablet">
+                        {% include 'book/book_identifiers.html' %}
+                    </div>
+                </div>
+            {% endwith %}
+        </div>
+
+        <div class="column is-narrow">
+            {% include 'snippets/shelve_button/shelve_button.html' with book=book switch_mode=True right=True %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="block">
+    {% include 'snippets/pagination.html' with page=editions path=request.path %}
+</div>
+
+<div class="block has-text-centered help">
+    <p>
+        {% trans "Can't find the edition you're looking for?" %}
+    </p>
+
+    <form action="{% url 'create-book-data' %}" method="POST" name="add-edition-form">
+        {% csrf_token %}
+        {{ work_form.title }}
+        {{ work_form.sort_title }}
+        {{ work_form.subtitle }}
+        {{ work_form.authors }}
+        {{ work_form.description }}
+        {{ work_form.languages }}
+        {{ work_form.series }}
+        {{ work_form.cover }}
+        {{ work_form.first_published_date }}
+        {% for subject in work.subjects %}
+        <input type="hidden" name="subjects" value="{{ subject }}">
+        {% endfor %}
+
+        <input type="hidden" name="parent_work" value="{{ work.id }}">
+        <div>
+            <button class="button is-small" type="submit">
+                {% trans "Add another edition" %}
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

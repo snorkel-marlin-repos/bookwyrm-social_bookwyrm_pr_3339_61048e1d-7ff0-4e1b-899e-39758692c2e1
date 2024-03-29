@@ -1,0 +1,9 @@
+{% extends 'snippets/filters_panel/filter_field.html' %}
+{% load i18n %}
+
+{% block filter %}
+<label class="label" for="id_username">{% trans "Username" %}</label>
+<div class="control">
+    <input type="text" class="input" name="username" value="{{ request.GET.username|default:'' }}" id="id_username" placeholder="user@domain.com">
+</div>
+{% endblock %}

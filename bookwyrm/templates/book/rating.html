@@ -1,0 +1,27 @@
+{% load i18n %}{% load status_display %}
+<div class="block mr-5">
+    <div class="media">
+        <div class="media-left">
+            {% include 'snippets/avatar.html' with user=user %}
+        </div>
+
+        <div class="media-content" itemprop="review" itemscope itemtype="https://schema.org/Review">
+            <div itemprop="author"
+                 itemscope
+                 itemtype="https://schema.org/Person"
+            >
+                <a href="{{ user.local_path }}" itemprop="url">
+                    <span itemprop="name">{{ user.display_name }}</span>
+                </a>
+            </div>
+            <div class="is-flex" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
+                <meta itemprop="ratingValue" content="{{ rating.rating|floatformat }}">
+                <p class="mr-1">{% trans "rated it" %}</p>
+                {% include 'snippets/stars.html' with rating=rating.rating %}
+            </div>
+            <div>
+                <a href="{{ rating.remote_id }}">{{ rating.published_date|published_date }}</a>
+            </div>
+        </div>
+    </div>
+</div>

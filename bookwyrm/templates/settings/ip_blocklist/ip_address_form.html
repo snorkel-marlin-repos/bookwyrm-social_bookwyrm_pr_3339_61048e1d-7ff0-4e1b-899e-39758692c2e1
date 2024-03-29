@@ -1,0 +1,37 @@
+{% extends 'components/inline_form.html' %}
+{% load i18n %}
+
+{% block header %}
+{% trans "Add IP address" %}
+{% endblock %}
+
+{% block form %}
+<form name="add-address" method="post" action="{% url 'settings-ip-blocks' %}">
+    <div class="block">
+        {% trans "Use IP address blocks with caution, and consider using blocks only temporarily, as IP addresses are often shared or change hands. If you block your own IP, you will not be able to access this page." %}
+    </div>
+
+    {% csrf_token %}
+
+    <div class="field">
+        <label class="label" for="id_address">
+            {% trans "IP Address:" %}
+        </label>
+    </div>
+
+    <div class="field">
+        <input type="text" name="address" maxlength="255" class="input" required="" id="id_address" placeholder="190.0.2.0/24" aria-describedby="desc_address">
+        <p class="help">{% trans "You can block IP ranges using CIDR syntax." %}</p>
+    </div>
+
+    {% include 'snippets/form_errors.html' with errors_list=form.address.errors id="desc_address" %}
+
+    <div class="field">
+        <div class="control">
+            <button type="submit" class="button is-primary">
+                {% trans "Add" %}
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}

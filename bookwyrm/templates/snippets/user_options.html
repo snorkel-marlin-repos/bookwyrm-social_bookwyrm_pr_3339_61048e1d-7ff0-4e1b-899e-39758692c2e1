@@ -1,0 +1,28 @@
+{% extends 'components/dropdown.html' %}
+{% load i18n %}
+{% load utilities %}
+
+{% block dropdown-trigger %}
+<span class="icon icon-dots-three">
+    <span class="is-sr-only">{% trans "More options" %}</span>
+</span>
+{% endblock %}
+
+{% block dropdown-list %}
+<li role="menuitem">
+    <div class="control">
+        <a href="{% url 'direct-messages-user' user|username %}" class="button is-fullwidth is-small">{% trans "Send direct message" %}</a>
+    </div>
+</li>
+<li role="menuitem">
+    {% include 'snippets/report_button.html' with user=user class="is-fullwidth" %}
+</li>
+<li role="menuitem">
+    {% include 'snippets/block_button.html' with user=user class="is-fullwidth" blocks=False %}
+</li>
+{% if followers_page %}
+<li role="menuitem">
+    {% include 'snippets/remove_follower_button.html' with user=user class="is-fullwidth" %}
+</li>
+{% endif %}
+{% endblock %}
